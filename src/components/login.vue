@@ -20,6 +20,22 @@ export default {
 	     	day:0,
 		}
 	},
+	created:function(){
+		//请求若要带上cookie需要设置axios，且后端也需要设置Origin为指定域名
+		axios.defaults.withCredentials = true
+    	axios.get("http://localhost:9000/login").then(res=>{
+    		if(res.data.user){
+    			this.name=res.data.user.name
+    			this.day=Math.ceil((Date.now()-Date.parse(res.data.user.regidate))/3600/24/1000)
+    			this.isLogin=true
+    			this.$emit('login')
+    			console.log('logined')
+    		}
+    		else{
+    			console.log('no login')
+    		}
+    	})
+    },
 	methods:{
 		submit(){
     		axios.post('http://localhost:9000/login', {
@@ -33,13 +49,16 @@ export default {
 			  		if(res.data.user&&res.data.user.regidate){
 			  			this.day=Math.ceil((Date.now()-Date.parse(res.data.user.regidate))/3600/24/1000)
 			  		}
+			  		if(!this.err)
+			  			this.$emit('login')
 			  	}
-			    this.$emit('login')
+			  	console.log(res.data)
 			    //this.$router.push({path:"/"})
 			  })
 			  .catch(function (error) {
 			    console.log(error);
 			  });
+
     	},
     	loginout(){
     		axios.get('http://localhost:9000/login/out').then(res=>{

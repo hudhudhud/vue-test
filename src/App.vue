@@ -14,18 +14,19 @@
             </div>
           </div>
           <div class="right">
-            <p class="header">管理后台</p>
+            <p class="header">管理后台</p> <p @click="loginOut">退出</p>
             <transition name="fade" mode="out-in">
               <router-view  class="content"></router-view>
             </transition>
           </div>
     </section>
-    <login v-else  @login="login"></login>
+    <login v-else @login="login"></login>
 </div>
 </template>
 
 <script>
 import login from './components/login'
+import axios from 'axios'
 export default {
   name: 'app',
   components:{login},
@@ -42,6 +43,12 @@ export default {
   methods:{
     login(){
         this.isLogin=true
+    },
+    loginOut(){
+        axios.get('http://localhost:9000/login/out').then(res=>{
+                this.msg=res.msg
+                this.isLogin=false
+            })
     }
   }
 

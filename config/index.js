@@ -49,8 +49,8 @@ module.exports = {
 
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'static',
-    assetsPublicPath: '',
+    assetsSubDirectory: 'static', 
+    assetsPublicPath: '', //修改为相对路径，原来为根路径
 
     /**
      * Source Maps
