@@ -4,11 +4,11 @@
         <div class="left">
             <div class="head-img">
               <img src="./assets/b.jpg" alt="">
-              <p>cc管理员</p>
+              <p>{{user.name}} 管理员</p>
             </div>
             <div class="router" >
               <ul v-for="item in menu">
-                  <li><router-link :to='item.path'>{{item.name}}</router-link></li>
+                  <li><router-link :to='item.path' :class="{active:item.active}">{{item.name}}</router-link></li>
                   <li v-for="child in item.child"><router-link :to='child.path'>{{child.name}}</router-link></li>
               </ul>
             </div>
@@ -26,26 +26,28 @@
 
 <script>
 import login from './components/login'
-import axios from 'axios'
+import axios from './assets/js/myaxios'
 export default {
   name: 'app',
   components:{login},
   data () {
     return { 
      isLogin:false,
+     user:{name:""},
      menu: [
-        {name:"首页",path:"/"},
+        {name:"首页",path:"/",active:true},
         {name:"管理",path:"/manage",child:[{name:"文章管理",path:"/manage/article"},{name:"用户管理",path:"/manage/user"}]},
-        {name:"统计",path:"/statistics",child:[{name:"用户分析",path:"/statistics/user"}]}
+        {name:"统计",path:"/statistics" ,child:[{name:"用户分析",path:"/statistics/user"}]}
       ]
     }
   },
   methods:{
-    login(){
+    login(payload){
         this.isLogin=true
+        this.user=payload.user
     },
     loginOut(){
-        axios.get('http://localhost:9000/login/out').then(res=>{
+        axios.get('/login/out').then(res=>{
                 this.msg=res.msg
                 this.isLogin=false
             })
@@ -84,17 +86,15 @@ export default {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
   width:100%;
   height:100%;
-
 }
 a{
   color:black;
   text-decoration: none;
 }
 
-*{background-color: rgba(0,0,0,0.1)}
+*{xbackground-color: rgba(0,0,0,0.1)}
 
 ul {
   list-style-type: none;
@@ -119,7 +119,7 @@ p{
   position: relative;
 }
 .right{
-  height: 100%;
+   height: 100%;
    background-color: #f6f6f6;
 }
 .router{
@@ -141,7 +141,7 @@ p{
 }
 .header{
    height: $top-width;
-   background-color: #1fcc8c;
+   background-color: $main-color;
    color:white;
    text-align: left;
    line-height: $top-width;
@@ -163,10 +163,14 @@ p{
   height: 50px;
   border-radius: 100%;
 }
+.active{
+    color: $main-color;
+}
 html,body,.admin{
   width:100%;
   height:100%;
   margin:0;
   padding:0;
+  background-color: #f5f6f5;
 }
 </style>
