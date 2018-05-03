@@ -5,6 +5,7 @@ import Router from 'vue-router'
 import Content from '@/components/content'
 import ContentMain from '@/components/contentMain'
 import UserList from '@/components/userList'
+import AddArticle from '@/components/addArticle'
 import ArticleList from '@/components/articleList'
 import UserSta from '@/components/userSta'
 import index from '@/components/index'
@@ -32,7 +33,8 @@ var router=new Router({
 	      children: [
 	        { path: '', component: ArticleList,name:"1" },
 	        { path: 'article', component: ArticleList,name:"1" },
-	        { path: 'user', component: UserList,name:"2"}
+	        { path: 'addArticle', component: AddArticle,name:"2" },
+	        { path: 'user', component: UserList,name:"3"}
 	      ]
 	    },
 	    { path: '/statistics', component: Content,
@@ -40,7 +42,7 @@ var router=new Router({
 	        { path: '', component: UserSta },
 	        { path: 'user', component: UserSta }
 	      ]
-	    }
+	    },
 	],
 })
 

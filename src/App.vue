@@ -8,13 +8,13 @@
             </div>
             <div class="router" >
               <ul v-for="item in menu">
-                  <li><router-link :to='item.path' :class="{active:item.active}">{{item.name}}</router-link></li>
-                  <li v-for="child in item.child"><router-link :to='child.path'>{{child.name}}</router-link></li>
+                  <li><router-link :to='item.path' :class="{active:item.name==activeName}" @click.native="menuClick">{{item.name}}</router-link></li>
+                  <li v-for="child in item.child"><router-link :to='child.path' :class="{active:child.name==activeName}"@click.native="menuClick">{{child.name}}</router-link></li>
               </ul>
             </div>
           </div>
           <div class="right">
-            <p class="header">管理后台</p> <p @click="loginOut">退出</p>
+            <p class="header">管理后台<span @click="loginOut" class="loginout">退出</span></p> 
             <transition name="fade" mode="out-in">
               <router-view  class="content"></router-view>
             </transition>
@@ -34,8 +34,9 @@ export default {
     return { 
      isLogin:false,
      user:{name:""},
+     activeName:"首页",
      menu: [
-        {name:"首页",path:"/",active:true},
+        {name:"首页",path:"/"},
         {name:"管理",path:"/manage",child:[{name:"文章管理",path:"/manage/article"},{name:"用户管理",path:"/manage/user"}]},
         {name:"统计",path:"/statistics" ,child:[{name:"用户分析",path:"/statistics/user"}]}
       ]
@@ -51,6 +52,9 @@ export default {
                 this.msg=res.msg
                 this.isLogin=false
             })
+    },
+    menuClick(e){
+        this.activeName=e.target.innerText
     }
   }
 
@@ -166,11 +170,21 @@ p{
 .active{
     color: $main-color;
 }
+.loginout{
+    float: right;
+    font-size: 10px;
+    padding-right: 20px;
+}
 html,body,.admin{
   width:100%;
   height:100%;
   margin:0;
   padding:0;
   background-color: #f5f6f5;
+}
+.clearfix:after{
+    content:"";
+    display: block;
+    clear:both;
 }
 </style>

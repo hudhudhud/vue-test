@@ -1,6 +1,7 @@
 <template>
 	<section>
-		<div class="foo">文章管理</div>
+		<p>文章管理</p>
+		<router-link to='/manage/addArticle' >新建文章</router-link>
 		<ul>
 			<li v-for="item in list">
 				<span>{{item}}</span>
