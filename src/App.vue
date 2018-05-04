@@ -73,8 +73,8 @@ export default {
   opacity: 0
 }
 .child-view {
-  position: absolute;
   transition: all .5s cubic-bezier(.55,0,.1,1);
+  margin-top: $top-width;
 }
 .slide-left-enter, .slide-right-leave-active {
   opacity: 0;
@@ -92,6 +92,27 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   width:100%;
   height:100%;
+    .admin{
+      width:100%;
+      height:100%;
+      margin:0;
+      padding:0;
+      background-color: #f5f6f5;
+      >.left{
+          width:$left-width;
+          height: 100%;
+          float: left;
+          box-sizing: border-box;
+          background-color: white;
+          position: relative;
+          position: fixed;
+        }
+        >.right{
+           height: 100%;
+           background-color: #f6f6f6;
+        }
+    }
+   
 }
 a{
   color:black;
@@ -114,18 +135,7 @@ li {
 p{
   margin:0;
 }
-.left{
-  width:$left-width;
-  height: 100%;
-  float: left;
-  box-sizing: border-box;
-  background-color: white;
-  position: relative;
-}
-.right{
-   height: 100%;
-   background-color: #f6f6f6;
-}
+
 .router{
   margin:auto;
   margin-top: 100px;
@@ -142,6 +152,7 @@ p{
   margin-left: $left-width;
   padding:20px;
   box-sizing: border-box;
+  overflow: scroll;
 }
 .header{
    height: $top-width;
@@ -152,7 +163,9 @@ p{
    padding-left: 40px;
    margin:0;
    margin-left: $left-width;
-  
+   position: fixed;
+   width:100%;
+   z-index: 99;
 }
 .head-img{
   width:100px;
@@ -175,7 +188,7 @@ p{
     font-size: 10px;
     padding-right: 20px;
 }
-html,body,.admin{
+html,body{
   width:100%;
   height:100%;
   margin:0;
