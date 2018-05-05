@@ -32,7 +32,7 @@ export default {
   components:{login},
   data () {
     return { 
-     isLogin:false,
+     isLogin:true,
      user:{name:""},
      activeName:"首页",
      menu: [

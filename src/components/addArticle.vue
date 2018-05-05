@@ -44,23 +44,7 @@
 				<input type="button" value="保存并发送">
 			</div>			
 		</section>
-		<div id="foodTemp" :class="{foodTempHide:foodTempHide}" >
-			<div class="foodTemp">
-				<p class="top clearfix">
-					<span>美食模板</span>
-					<input type="button" @click="addLine" value="添加行">
-				</p>
-				<p class="food-title">食材</p>
-				<ul class="lines">
-					<li v-for="item of foodLines">
-						<input type="text" placeholder="请输入食材" :value="item.name"  >
-						<input type="text" placeholder="请输入用量" :value="item.quality" >
-					</li>
-				</ul>
-				<input type="button" value="保存" @click="save">
-				<input type="button" value="取消" @click="cancel">
-			</div>
-		</div>
+		<foodTemp :is-hide="foodTempHide"  @saveTemp="saveTemp"></foodTemp>
 	</div>
 
 </template>
@@ -68,47 +52,50 @@
 <script>
 
 import editor from './Quilleditor.vue'
+import foodTemp from './foodTemp.vue'
 export default {
   components: {
-    editor
-    },
+    editor,
+    foodTemp
+  },
  	data:function(){
 		return {
 			canCrop:false,
 			 /*测试上传图片的接口，返回结构为{url:''}*/
-     		uploadUrl:'http://localhost:8888/upload',
+     	uploadUrl:'http://localhost:8888/upload',
 			content:`<h1 class="ql-align-left"><span class="ql-font-serif" style="border-bottom:1px solid;"> 请在这里输入标题 </span></h1>
 			`,
 			foodTempHide:true,
-			foodLines:[{name:"1",quality:"2"}]
 		}
 	},
 	methods:{
-		input:function (e) {
-			console.log(e.html)
-		},
 		foodTemp:function(e) {
 			this.foodTempHide=false
 		},
-		addLine:function() {
-			this.foodLines.push({name:"",quality:""})
-		},
-		foodChange:function(i) {
-			console.log(111)
-			console.log(i)
-		},
-		cancel:function() {
+		cancelTemp:function(){
 			this.foodTempHide=true
-			this.foodLines=[{name:"",quality:""}]
 		},
-		save:function() {
-			
+		saveTemp:function(data){
+			console.log(data)
+			this.foodTempHide=true
+			  // axios.post('/manage/article/add',{
+	      //     firstName: 'Fred',
+	      //     lastName: 'Flintstone'
+	      //   }).then(res=>{
+	    //               this.foodTempHide=true
+	    //   })
+	    
+	    for(var item of data){
+	    	if(item.name){
+	    		this.content+=`<p><span>${item.name}</span>    <span>${item.quality}</span></p>`
+	    	}
+	    }
 		}
 	}
 }
 </script>
 <style lang="scss" scoped>
-@import '../assets/css/common.scss';
+
 .main{
 	position: relative;
 	background-color: white;
@@ -191,79 +178,7 @@ export default {
 	}
 }
 
-#foodTemp{
-	position: absolute;
-	top:0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	background-color: rgba(0,0,0,0.2);
-	text-align: center;
-	font-size:15px;
-	.foodTemp{
-		width:500px;
-		height: 300px;
-		background-color: white;
-		position: absolute;
-		top:50%;
-		left:50%;
-		transform: translateY(-50%) translateX(-50%);
-		padding:10px;
-		box-sizing: border-box;
-		.top{
-			span{
-				float:left;
-			}
-			input{
-				border:none;
-				float:right;
-				width:80px;
-				height: 25px;
-				background-color:$main-color;
-				color:white;
-			}
-			padding-bottom:5px;
-			border-bottom:1px solid rgba(0,0,0,0.1);
-		}
-		.food-title{
-			float:left;
-		}
-		.lines{
-			margin:auto;
-			margin-top:20px;
-			box-sizing: border-box;
-			xborder:1px solid;
-			width:450px;
-			height: 180px;
-			padding:20px;
-			overflow-y: scroll;
-			input{
-				margin-top: 5px;
-				width:150px;
-				height: 25px;
-				outline: none;
-				background-color: rgba(0,0,0,0.1);
-				border:none;
-				margin-right: 30px;
-			}
-		}
-		>input[type=button]{
-			margin-top:20px;
-			width:100px;
-			height: 30px;
-			border:1px solid rgba(0,0,0,0.1);
-			color: black;
-			&:hover{
-				background-color:$main-color;
-				color:white;
-			};
-		}
-	}
-	&.foodTempHide{
-		display: none;
-	}
-	
-}
+
 	
 
 
