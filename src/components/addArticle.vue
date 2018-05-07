@@ -2,7 +2,7 @@
 	<div>
 		<p>文章管理 / 新建文章</p>
 		<section class="main clearfix">
-			<div class="left">
+			<div class="arti-div">
 				<!-- <quillEditor
 				    :content="content"
 	                :options="editorOption"
@@ -16,7 +16,7 @@
 		            :uploadUrl="uploadUrl"
 		            v-model="content">
            		 </editor> -->
-           		<editor1 :content="content" :height="500" ></editor1>
+        <editor1 :content="content"  :height="500" ></editor1>
 				<div class="customer">
 					<span>封面：</span>
 					<a href="javascript:;" class="a-upload">
@@ -28,7 +28,7 @@
 					<img :src="coverImg" alt="" class="cover-img">
 				</div>
 			</div>
-			<div class="right">
+			<div class="arti-oth">
 				<div class="mb">
 					<p class="title">模板</p>
 					<input type="button" class="btn" @click="foodTemp" value="美食模板">
@@ -57,14 +57,13 @@ import '../assets/css/font-awesome.min.css';
 import editor from 'vue-html5-editor'
 import foodTemp from './foodTemp.vue'
 import common from '../assets/js/common.js'
-const editor1 = new editor(options)
 var options= {
     // 全局组件名称，使用new VueHtml5Editor(options)时该选项无效 
     // global component name
     name: "vue-html5-editor",
     // 是否显示模块名称，开启的话会在工具栏的图标后台直接显示名称
     // if set true,will append module name to toolbar after icon
-    showModuleName: true,
+    showModuleName: false,
     // 自定义各个图标的class，默认使用的是font-awesome提供的图标
     // custom icon class of built-in modules,default using font-awesome
     icons: {
@@ -194,6 +193,8 @@ var options= {
         //omit,reference to source code of build-in modules
     }
 }
+const editor1 = new editor(options)
+
 export default {
   components: {
     editor1,
@@ -266,9 +267,11 @@ export default {
 	position: relative;
 	background-color: white;
 	height: 1000px;
-	width:1000px;
-	.left{
-		width:850px;
+	width:100%;
+	display: flex;
+	flex-direction: row;
+	.arti-div{
+		width:80%;
 		float: left;
 		border-right:1px solid rgba(0,0,0,0.2);
 		padding:10px;
@@ -316,21 +319,23 @@ export default {
 		}
 	}
 	
-	.right{
-		float:right;
+	.arti-oth{
+		flex-grow: 1;
 		width:150px;
 		box-sizing: border-box;
 		padding:10px;
 		font-size: 15px;
+		text-align: center;
 		.title{
 			text-align: left;
 			padding:10px;
 		}
 		.btn{
+			display: block;
 			text-align: center;
 			border:1px solid rgba(0,0,0,0.3);
 			box-sizing: border-box;
-			width:100px;
+			width:80%;
 			background-color: white;
 			padding:5px;
 			outline: none;

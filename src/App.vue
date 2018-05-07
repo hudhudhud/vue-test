@@ -98,18 +98,41 @@ export default {
       margin:0;
       padding:0;
       background-color: #f5f6f5;
+      display: flex;
+      flex-direction: row;
       >.left{
           width:$left-width;
           height: 100%;
-          float: left;
           box-sizing: border-box;
           background-color: white;
-          position: relative;
           position: fixed;
+          z-index: 9999;
         }
         >.right{
-           height: 100%;
-           background-color: #f6f6f6;
+           flex-grow: 1;
+           min-height: 100%;
+           margin-left:$left-width;
+           position: flex;
+           flex-direction: column;
+           .header{
+               height: $top-width;
+               background-color: $main-color;
+               color:white;
+               text-align: left;
+               line-height: $top-width;
+               padding-left: 40px;
+               margin:0;
+               position: fixed;
+               width:100%;
+               z-index: 1002;
+            }
+           .content{
+              flex-grow: 1;
+              padding:2%;
+              box-sizing: border-box;
+              overflow: scroll;
+           }
+          
         }
     }
    
@@ -147,26 +170,7 @@ p{
   margin-bottom: 20px;
   border-bottom: 1px solid rgba(0,0,0,0.3)
 }
-.content{
-  /*margin:auto;*/
-  margin-left: $left-width;
-  padding:20px;
-  box-sizing: border-box;
-  overflow: scroll;
-}
-.header{
-   height: $top-width;
-   background-color: $main-color;
-   color:white;
-   text-align: left;
-   line-height: $top-width;
-   padding-left: 40px;
-   margin:0;
-   margin-left: $left-width;
-   position: fixed;
-   width:100%;
-   z-index: 99;
-}
+
 .head-img{
   width:100px;
   height: 100px;
