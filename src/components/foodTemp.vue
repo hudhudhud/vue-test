@@ -21,10 +21,10 @@
 <script type="text/javascript">
 
 export default {
-  props:["isHide"],
+  props:["isHide","foodLines"],
   data:function(){
     return {
-      foodLines:[{name:"",quality:""}]
+      //foodLines:[{name:"",quality:""}]
     }
   },
   methods:{

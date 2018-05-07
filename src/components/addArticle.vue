@@ -10,20 +10,22 @@
 	                	
             	
 	            </quillEditor> -->
-				 <editor ref="myTextEditor"
+				<!--  <editor ref="myTextEditor"
 		            :fileName="'myFile'"
 		            :canCrop="canCrop"
 		            :uploadUrl="uploadUrl"
 		            v-model="content">
-           		 </editor>
+           		 </editor> -->
+           		<editor1 :content="content" :height="500" ></editor1>
 				<div class="customer">
 					<span>封面：</span>
 					<a href="javascript:;" class="a-upload">
-					    <input type="file" name="" id="">从正文选择
+					    <input type="file" name="coverImg" @change="uploadHeadImg">从正文选择
 					</a>
 					<a href="javascript:;" class="a-upload">
-					    <input type="file" name="" id="">从图片库选择
+					    <input type="file" name="coverImg" id="" >从图片库选择
 					</a>
+					<img :src="coverImg" alt="" class="cover-img">
 				</div>
 			</div>
 			<div class="right">
@@ -44,28 +46,169 @@
 				<input type="button" value="保存并发送">
 			</div>			
 		</section>
-		<foodTemp :is-hide="foodTempHide"  @saveTemp="saveTemp"></foodTemp>
+		<foodTemp :is-hide="foodTempHide" :food-lines="foodList" @saveTemp="saveTemp"  @cancelTemp="cancelTemp"></foodTemp>
 	</div>
 
 </template>
 
 <script>
-
-import editor from './Quilleditor.vue'
+import '../assets/css/font-awesome.min.css';
+//import editor from './Quilleditor.vue'
+import editor from 'vue-html5-editor'
 import foodTemp from './foodTemp.vue'
+import common from '../assets/js/common.js'
+const editor1 = new editor(options)
+var options= {
+    // 全局组件名称，使用new VueHtml5Editor(options)时该选项无效 
+    // global component name
+    name: "vue-html5-editor",
+    // 是否显示模块名称，开启的话会在工具栏的图标后台直接显示名称
+    // if set true,will append module name to toolbar after icon
+    showModuleName: true,
+    // 自定义各个图标的class，默认使用的是font-awesome提供的图标
+    // custom icon class of built-in modules,default using font-awesome
+    icons: {
+        text: "fa fa-pencil",
+        color: "fa fa-paint-brush",
+        font: "fa fa-font",
+        align: "fa fa-align-justify",
+        list: "fa fa-list",
+        link: "fa fa-chain",
+        unlink: "fa fa-chain-broken",
+        tabulation: "fa fa-table",
+        image: "fa fa-file-image-o",
+        hr: "fa fa-minus",
+        eraser: "fa fa-eraser",
+        undo: "fa-undo fa",
+        "full-screen": "fa fa-arrows-alt",
+        info: "fa fa-info",
+    },
+    // 配置图片模块
+    // config image module
+    image: {
+        // 文件最大体积，单位字节  max file size
+        sizeLimit: 512 * 1024,
+        // 上传参数,默认把图片转为base64而不上传
+        // upload config,default null and convert image to base64
+        upload: {
+            url: common.apiUrl+'/upload',
+            headers: {},
+            params: {},
+            fieldName: {}
+        },
+        // 压缩参数,默认使用localResizeIMG进行压缩,设置为null禁止压缩
+        // compression config,default resize image by localResizeIMG (https://github.com/think2011/localResizeIMG)
+        // set null to disable compression
+        compress: {
+            width: 1600,
+            height: 1600,
+            quality: 80
+        },
+        // 响应数据处理,最终返回图片链接
+        // handle response data，return image url
+        uploadHandler(responseText){
+        	console.log("111111"+responseText)
+            //default accept json data like  {ok:false,msg:"unexpected"} or {ok:true,data:"image url"}
+            // var json = JSON.parse(responseText)
+            // if (!json.ok) {
+            //     alert(json.msg)
+            // } else {
+            //     return json.data
+            // }
+        }
+    },
+    // 语言，内建的有英文（en-us）和中文（zh-cn）
+    //default en-us, en-us and zh-cn are built-in
+    language: "zh-cn",
+    // 自定义语言
+    i18n: {
+        //specify your language here
+        "zh-cn": {
+            "align": "对齐方式",
+            "image": "图片",
+            "list": "列表",
+            "link": "链接",
+            "unlink": "去除链接",
+            "table": "表格",
+            "font": "文字",
+            "full screen": "全屏",
+            "text": "排版",
+            "eraser": "格式清除",
+            "info": "关于",
+            "color": "颜色",
+            "please enter a url": "请输入地址",
+            "create link": "创建链接",
+            "bold": "加粗",
+            "italic": "倾斜",
+            "underline": "下划线",
+            "strike through": "删除线",
+            "subscript": "上标",
+            "superscript": "下标",
+            "heading": "标题",
+            "font name": "字体",
+            "font size": "文字大小",
+            "left justify": "左对齐",
+            "center justify": "居中",
+            "right justify": "右对齐",
+            "ordered list": "有序列表",
+            "unordered list": "无序列表",
+            "fore color": "前景色",
+            "background color": "背景色",
+            "row count": "行数",
+            "column count": "列数",
+            "save": "确定",
+            "upload": "上传",
+            "progress": "进度",
+            "unknown": "未知",
+            "please wait": "请稍等",
+            "error": "错误",
+            "abort": "中断",
+            "reset": "重置"
+        }
+    },
+    // 隐藏不想要显示出来的模块
+    // the modules you don't want
+    hiddenModules: [],
+    // 自定义要显示的模块，并控制顺序
+    // keep only the modules you want and customize the order.
+    // can be used with hiddenModules together
+    visibleModules: [
+        "text",
+        "color",
+        "font",
+        "align",
+        "list",
+        "link",
+        "unlink",
+        "tabulation",
+        "image",
+        "hr",
+        "eraser",
+        "undo",
+        "full-screen",
+        "info",
+    ],
+    // 扩展模块，具体可以参考examples或查看源码
+    // extended modules
+    modules: {
+        //omit,reference to source code of build-in modules
+    }
+}
 export default {
   components: {
-    editor,
+    editor1,
     foodTemp
   },
  	data:function(){
 		return {
 			canCrop:false,
 			 /*测试上传图片的接口，返回结构为{url:''}*/
-     	uploadUrl:'http://localhost:8888/upload',
+     		uploadUrl:common.apiUrl+'/upload',
 			content:`<h1 class="ql-align-left"><span class="ql-font-serif" style="border-bottom:1px solid;"> 请在这里输入标题 </span></h1>
 			`,
 			foodTempHide:true,
+			coverImg:"http://localhost/img/a.jpg",
+			foodList:[{name:"1",quality:"2"},{name:"3",quality:"4"}]
 		}
 	},
 	methods:{
@@ -85,11 +228,34 @@ export default {
 	    //               this.foodTempHide=true
 	    //   })
 	    
-	    for(var item of data){
-	    	if(item.name){
-	    		this.content+=`<p><span>${item.name}</span>    <span>${item.quality}</span></p>`
-	    	}
-	    }
+		    for(var i in data){
+		    	if(data[i].name){
+		    		if(i%2==1){
+		    			this.content+=`<p style="background-color: rgb(0,0,0,0.2);">
+		    			<span style='color:green;'>${data[i].name}</span><span>${data[i].quality}</span>
+		    			</p>`
+		    		}
+		    		else{
+		    			this.content+=`<p>
+		    			<span>${data[i].name}</span><span>${data[i].quality}</span> 
+		    			 </p>`
+		    		}
+		    	}
+		    }
+		},            
+		uploadHeadImg:function(e) {
+			  var data = new FormData;
+	          data.append('imgimg', e.target.files[0],e.target.files[0].name);
+	          var xhr=new XMLHttpRequest();
+	          xhr.open('post',this.uploadUrl);
+	          xhr.responseType='json';
+	          xhr.send(data);
+	          xhr.onload=function () {
+	            if(xhr.status==200){
+	              console.log(common.apiUrl+"/img/upload/"+xhr.response.name)
+	              this.coverImg=common.apiUrl+"/img/upload/"+xhr.response.name
+	            }
+	          }.bind(this)
 		}
 	}
 }
@@ -140,6 +306,12 @@ export default {
 			    opacity: 0;
 			    filter: alpha(opacity=0);
 			    cursor: pointer;
+			}
+			.cover-img{
+				border:1px solid gray;
+				display:block; 
+				width:100px;
+				height: 150px;
 			}
 		}
 	}

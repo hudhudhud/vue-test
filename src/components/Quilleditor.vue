@@ -210,7 +210,7 @@
         },
         methods: {
             onChange(){
-              console.log("onChange")
+                console.log("onChange")
                 this.$emit('input', this.content)
             },
             /*选择上传图片切换*/
@@ -230,7 +230,9 @@
               }
               var self = this;
               var data = new FormData;
-              data.append(this.fileName, fileInput.files[0],name);
+              data.append("foofile", fileInput.files[0],name);
+              console.log(fileInput.files[0],name)
+              //data.append(this.fileName, fileInput.files[0],name);
               console.log(data)
               this.editor.focus();
               var xhr=new XMLHttpRequest();
