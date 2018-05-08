@@ -130,7 +130,7 @@ export default {
               flex-grow: 1;
               padding:2%;
               box-sizing: border-box;
-              overflow: scroll;
+              xoverflow: scroll;
            }
           
         }
