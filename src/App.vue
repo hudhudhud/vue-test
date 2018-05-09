@@ -16,7 +16,7 @@
           <div class="right">
             <p class="header">管理后台<span @click="loginOut" class="loginout">退出</span></p> 
             <transition name="fade" mode="out-in">
-              <router-view  class="content"></router-view>
+              <router-view  class="router-content"></router-view>
             </transition>
           </div>
     </section>
@@ -32,7 +32,7 @@ export default {
   components:{login},
   data () {
     return { 
-     isLogin:true,
+     isLogin:false,
      user:{name:""},
      activeName:"首页",
      menu: [
@@ -48,7 +48,7 @@ export default {
         this.user=payload.user
     },
     loginOut(){
-        axios.get('/login/out').then(res=>{
+        axios.get('/login/api/out').then(res=>{
                 this.msg=res.msg
                 this.isLogin=false
             })
@@ -65,7 +65,7 @@ export default {
 </style>
 <style lang="scss">
 @import './assets/css/common.scss';
-
+/*跟router transition中的name需要对应，如fade,slide-left,slide-right,否则默认为v*/
 .fade-enter-active, .fade-leave-active {
   transition: opacity .5s ease;
 }
@@ -73,8 +73,15 @@ export default {
   opacity: 0
 }
 .child-view {
-  transition: all .5s cubic-bezier(.55,0,.1,1);
-  margin-top: $top-width;
+  transition: all  .5s cubic-bezier(.55,0,.1,1);
+  /*需要绝对定位，否则插入的块在离开的块下面布局*/
+  position: absolute;
+  top:0;
+  left:0;
+  padding:2%;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
 }
 .slide-left-enter, .slide-right-leave-active {
   opacity: 0;
@@ -86,6 +93,8 @@ export default {
   -webkit-transform: translate(-30px, 0);
   transform: translate(-30px, 0);
 }
+/*end*/
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -112,8 +121,6 @@ export default {
            flex-grow: 1;
            min-height: 100%;
            margin-left:$left-width;
-           position: flex;
-           flex-direction: column;
            .header{
                height: $top-width;
                background-color: $main-color;
@@ -125,12 +132,19 @@ export default {
                position: fixed;
                width:100%;
                z-index: 1002;
+               .loginout{
+                    position: absolute;
+                    left: 80%;
+                    font-size: 10px;
+                }
             }
-           .content{
-              flex-grow: 1;
-              padding:2%;
+           .router-content{
               box-sizing: border-box;
               xoverflow: scroll;
+              margin-top: $top-width;
+              position: relative;
+              min-height: 100%;
+              box-sizing: border-box;
            }
           
         }
@@ -186,11 +200,6 @@ p{
 }
 .active{
     color: $main-color;
-}
-.loginout{
-    float: right;
-    font-size: 10px;
-    padding-right: 20px;
 }
 html,body{
   width:100%;

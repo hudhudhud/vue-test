@@ -27,7 +27,7 @@ export default {
 		}
 	},
 	created:function(){
-    	axios.get("/login").then(res=>{
+    	axios.get("/login/api").then(res=>{
     		if(res.data.user){
     			this.name=res.data.user.name
     			this.day=Math.ceil((Date.now()-Date.parse(res.data.user.regidate))/3600/24/1000)
@@ -42,7 +42,7 @@ export default {
     },
 	methods:{
 		submit(){
-    		axios.post('/login', {
+    		axios.post('/login/api', {
 			    name: this.name,
 			    pwd: this.pwd,
 			  })

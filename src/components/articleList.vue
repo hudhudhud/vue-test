@@ -1,7 +1,7 @@
 <template>
 	<section>
 		<p>文章管理</p>
-		<router-link to='/manage/addArticle' >新建文章</router-link>
+		<router-link to='/manage/article/add' >新建文章</router-link>
 		<ul class="articles">
 			<li v-for="item in list" class="article">
 				<p>{{item.title}}</p>
@@ -20,7 +20,7 @@ export default {
 		}
 	},
 	mounted(){
-		 axios.get('/manage/article').then(res=>{
+		 axios.get('/manage/article/api').then(res=>{
 		 		console.log(res)
                 this.list=res.data
             })

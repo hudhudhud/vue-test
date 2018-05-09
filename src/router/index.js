@@ -32,8 +32,12 @@ var router=new Router({
 	    { path: '/manage', component: ContentMain,
 	      children: [
 	        { path: '', component: ArticleList,name:"1" },
-	        { path: 'article', component: ArticleList,name:"1" },
-	        { path: 'addArticle', component: AddArticle,name:"2" },
+	        { path: 'article', component: ArticleList,name:"1" ,
+	       //    children: [
+		      //   { path: 'add', component: AddArticle,name:"1" },
+		      // ]
+	    	},
+	        { path: 'article/add', component: AddArticle,name:"2" },
 	        { path: 'user', component: UserList,name:"3"}
 	      ]
 	    },

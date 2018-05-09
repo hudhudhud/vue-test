@@ -3,13 +3,6 @@
 		<p>文章管理 / 新建文章</p>
 		<section class="main clearfix">
 			<div class="arti-div">
-				类别：<select v-model="catg" name="catg">
-							<option value="">请选择</option>
-							<option value="美食">美食</option>
-							<option value="美妆">美妆</option>
-					  </select>
-				标题：<input type="text" v-model="title" placeholder="请输入标题">
-				简要描述：<input type="text" v-model="desc">
 				<!-- <quillEditor
 				    :content="content"
 	                :options="editorOption"
@@ -23,33 +16,40 @@
            		 </editor> -->
         		<editor1 :content="content"  :height="500"  ref="editor" @change="editchange" :z-index="5" :auto-height=false></editor1>
 				<div class="customer">
-					<span>封面：</span>
-					<a href="javascript:;" class="a-upload">
-					    <input type="file" name="coverImg" @change="uploadHeadImg">从正文选择
-					</a>
-					<a href="javascript:;" class="a-upload">
-					    <input type="file" name="coverImg" id="" >从图片库选择
-					</a>
-					<img :src="coverImg" alt="" class="cover-img">
+					<p><span>标题：</span><input type="text" class="title" v-model="title" placeholder="请输入标题"></p>
+					<!-- <p><span>简要描述：</span><input type="text" v-model="desc"> -->
+					<p>
+						<span>封面：</span>
+						<a href="javascript:;" class="a-upload">
+						    <input type="file" name="coverImg"  @change="uploadHeadImg">选择图片
+						</a>
+						<!-- <img  v-if="coverImg" :src="coverImg" alt="" class="cover-img"> -->
+						<span v-if="coverImg" class="hasImg" :style="{backgroundImage:coverImgStyle}"></span>
+						<span v-else class="noImg" ></span>
+					</p>
+					<p>
+						<span>模板:</span>
+						<input type="button" class="btn" @click="foodTemp" value="美食模板">
+					</p>
+					<p>
+						<span>轮播图:</span>
+						<input type="button" class="btn" value="图片" @click="slider">
+					</p>
+					<p>
+						<span>类别：</span>
+						<select v-model="catg" name="catg">
+							<option value="">请选择</option>
+							<option value="美食">美食</option>
+							<option value="美妆">美妆</option>
+						</select>
+					</p>
 				</div>
-			</div>
-			<div class="arti-oth">
-				<div class="mb">
-					<p class="title">模板</p>
-					<input type="button" class="btn" @click="foodTemp" value="美食模板">
-				</div>
-				<div class="dmt">
-					<p class="title">多媒体</p>
-					<input type="button" class="btn" value="图片" @click="slider">
-					<input type="button" class="btn" value="视频">
-					<input type="button" class="btn" value="音频">
-				</div>
-			</div>
-			<div class="footer">
-				<input type="button" value="保存" @click="save">
-				<input type="button" value="预览" @click="view">
-				<input type="button" value="保存并发送"  @click="savesend">
-			</div>			
+				<div class="footer">
+					<input type="button" value="保存" @click="save">
+					<input type="button" value="预览" @click="view">
+					<input type="button" value="保存并发送"  @click="savesend">
+				</div>	
+			</div>		
 		</section>
 		<foodTemp :is-hide="foodTempHide" :food-lines="foodList" @saveTemp="saveTemp"  @cancelTemp="cancelTemp"></foodTemp>
 	</div>
@@ -59,7 +59,7 @@
 <script>
 import '../assets/css/font-awesome.min.css';
 //import editor from './Quilleditor.vue'
-import editor from 'vue-html5-editor'
+import editor from 'vue-html5-editor'                                                          
 import foodTemp from './foodTemp.vue'
 import common from '../assets/js/common.js'
 import axios from '../assets/js/myaxios'
@@ -96,7 +96,7 @@ var options= {
         // 上传参数,默认把图片转为base64而不上传
         // upload config,default null and convert image to base64
         upload: {
-            url: common.apiUrl+'/upload',
+            url: common.uploadUrl+'/upload',
             headers: {},
             params: {},
             fieldName: "artifile",
@@ -114,7 +114,7 @@ var options= {
         uploadHandler(responseText){
         	var name=JSON.parse(responseText).name
         	console.log(name)
-        	var src=`${common.apiUrl}/img/upload/${name}`
+        	var src=`${common.imgUrl}/upload/${name}`
         	console.log(src)
         	return src
         }
@@ -208,7 +208,7 @@ export default {
  	data:function(){
 		return {
 			//canCrop:false,
-     		uploadUrl:common.apiUrl+'/upload',
+     		uploadUrl:common.uploadUrl+'/upload',
 			
 			foodTempHide:true,
 			catg:"",
@@ -218,6 +218,11 @@ export default {
 			foodList:[{name:"1",quality:"2"},{name:"3",quality:"4"}],
 			sliderImgs:[],
 			coverImg:"",
+		}
+	},
+	computed:{
+		coverImgStyle(){
+			return `url(${this.coverImg})`
 		}
 	},
 	methods:{
@@ -231,27 +236,6 @@ export default {
 			console.log(data)
 			this.foodTempHide=true
 			this.foodList=data
-			// axios.post('/manage/article/add',{
-	      	//     firstName: 'Fred',
-	      	//     lastName: 'Flintstone'
-	      	//   }).then(res=>{
-	    	//               this.foodTempHide=true
-	    	//   })
-	    
-		    // for(var i in data){
-		    // 	if(data[i].name){
-		    // 		if(i%2==1){
-		    // 			this.content+=`<p style="background-color: rgb(0,0,0,0.2);">
-		    // 			<span style='color:green;'>${data[i].name}</span><span>${data[i].quality}</span>
-		    // 			</p>`
-		    // 		}
-		    // 		else{
-		    // 			this.content+=`<p>
-		    // 			<span>${data[i].name}</span><span>${data[i].quality}</span> 
-		    // 			 </p>`
-		    // 		}
-		    // 	}
-		    // }
 		},        
 		uploadHeadImg:function(e) {
 			  var data = new FormData;
@@ -262,8 +246,8 @@ export default {
 	          xhr.send(data);
 	          xhr.onload=function () {
 	            if(xhr.status==200){
-	              console.log(common.apiUrl+"/img/upload/"+xhr.response.name)
-	              this.coverImg=common.apiUrl+"/img/upload/"+xhr.response.name
+	              console.log(common.imgUrl+"/upload/"+xhr.response.name)
+	              this.coverImg=common.imgUrl+"/upload/"+xhr.response.name
 	            }
 	          }.bind(this)
 		},
@@ -271,7 +255,7 @@ export default {
 			this.content=data
 		},
 		save(){
-			axios.post('/manage/article/add',{
+			axios.post('/manage/article/api/add',{
 	      	    catg: this.catg,
 	      	    title: this.title,
 	      	    desc: this.desc,
@@ -299,6 +283,7 @@ export default {
 <style lang="scss" scoped>
 
 .main{
+	margin-top:20px;
 	position: relative;
 	background-color: white;
 	height: 100%;
@@ -306,23 +291,22 @@ export default {
 	display: flex;
 	flex-direction: row;
 	.arti-div{
-		width:80%;
+		width:100%;
 		margin-bottom: 80px;
 		float: left;
-		border-right:1px solid rgba(0,0,0,0.2);
-		padding:10px;
 		box-sizing: border-box;
-	/*	.quill-editor{
-			width:100%;
-			height: 600px;
-			margin-bottom: 100px;
-			.ql-title{
-				text-align:center;
-				text-decoration: underline;
-				font-size:50px;
-				};
-		}*/
+		.vue-html5-editor{
+			border:none;
+			border-bottom: 1px solid rgba(0,0,0,0.2);
+		}
 		.customer{
+			input[type=text]{
+				border:none;
+				border-bottom: 1px solid rgba(0,0,0,0.2);
+				outline: none;
+				width:50%;
+				font-size:15px;
+			}
 			margin-top: 20px;
 			.a-upload {
 			    padding: 4px 10px;
@@ -353,14 +337,23 @@ export default {
 				width:100px;
 				height: auto;
 			}
+			.hasImg,.noImg{
+				display: block;
+				width:120px;
+				height: 120px;
+				background-color: gray;
+			}
+			.hasImg{
+				background-repeat: no-repeat;
+				background-size: cover;
+			}
 		}
 	}
 	
-	.arti-oth{
+/*	.arti-oth{
 		flex-grow: 1;
 		width:150px;
 		box-sizing: border-box;
-		padding:10px;
 		font-size: 15px;
 		text-align: center;
 		margin-bottom: 80px;
@@ -381,7 +374,7 @@ export default {
 				border-bottom:none;
 			}
 		}
-	}
+	}*/
 	.footer{
 		width:100%;
 		height: 80px;
