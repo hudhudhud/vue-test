@@ -15,41 +15,65 @@
 		            v-model="content">
            		 </editor> -->
         		<editor1 :content="content"  :height="500"  ref="editor" @change="editchange" :z-index="5" :auto-height=false></editor1>
+        		<p class="article-detail" v-if="!focusEditor" @click="editFocus">请在这里编辑文章</p>
 				<div class="customer">
-					<p><span>标题：</span><input type="text" class="title" v-model="title" placeholder="请输入标题"></p>
+					<div class="item title">
+						<span class="item-name">标题：</span>
+						<input type="text" class="title" v-model="title" placeholder="请输入标题">
+					</div>
 					<!-- <p><span>简要描述：</span><input type="text" v-model="desc"> -->
-					<p>
-						<span>封面：</span>
+					<div class="item">
+						<span class="item-name">封面：</span>
 						<a href="javascript:;" class="a-upload">
 						    <input type="file" name="coverImg"  @change="uploadHeadImg">选择图片
 						</a>
 						<!-- <img  v-if="coverImg" :src="coverImg" alt="" class="cover-img"> -->
 						<span v-if="coverImg" class="hasImg" :style="{backgroundImage:coverImgStyle}"></span>
 						<span v-else class="noImg" ></span>
-					</p>
-					<p>
-						<span>模板:</span>
-						<input type="button" class="btn" @click="foodTemp" value="美食模板">
-					</p>
-					<p>
-						<span>轮播图:</span>
-						<input type="button" class="btn" value="图片" @click="slider">
-					</p>
-					<p>
-						<span>类别：</span>
-						<select v-model="catg" name="catg">
-							<option value="">请选择</option>
-							<option value="美食">美食</option>
-							<option value="美妆">美妆</option>
+					</div>
+					<div class="item">
+						<span class="item-name">分类：</span>
+						<select v-model="catg" name="catg" class="catg">
+							<option value="-1">请选择</option>
+							<option value="1">美食</option>
+							<option value="2">美妆</option>
+							<option value="3">服饰</option>
+							<option value="4">健身</option>
+							<option value="5">家居</option>
 						</select>
-					</p>
+					</div>
+					<div class="item tags">
+						<span class="item-name">标签：</span>
+						<span v-for="(item,i) in tags" class="tag"  @mouseenter="tagEnter(i)"  @mouseleave="tagLeave">{{item.val}}
+							<span class="close" @click="deleteTag(i)" v-show="tagActive==i">X</span>
+						</span>
+						<input type="text" v-if="ifaddtag" @blur="tagblur" class="tagInput"  v-focus>
+						<span class="tag" @click="addtag" title="添加标签">+</span>
+					</div>
+					<div class="item food" v-show="catg==1">
+						<span class="item-name">食材:</span>
+						<input type="button" class="btn" @click="foodTemp" value="添加食材">
+						<section class="food-temp">
+							<div v-for="(item,i) in showFoodList" :class="{oddFood:i%2==0,evenFood:i%2==1,active:foodActive==i}" class="clearfix"
+							@mouseenter="foodEnter(i)" @mouseleave="foodLeave()">
+								<span >{{item.name}}</span>
+								<span class="close" @click="deleteFood(i)">X</span>
+								<span>{{item.quality}}</span>
+							</div>
+						</section>
+					</div>
+					<div class="item">
+						<span class="item-name">轮播图:</span>
+						<input type="button" class="btn" value="选择图片" @click="slider">
+					</div>
+				
 				</div>
-				<div class="footer">
-					<input type="button" value="保存" @click="save">
-					<input type="button" value="预览" @click="view">
-					<input type="button" value="保存并发送"  @click="savesend">
-				</div>	
-			</div>		
+			</div>
+			<div class="footer">
+				<input type="button" value="保存" @click="save">
+				<input type="button" value="预览" @click="view">
+				<input type="button" value="保存并发送"  @click="savesend">
+			</div>			
 		</section>
 		<foodTemp :is-hide="foodTempHide" :food-lines="foodList" @saveTemp="saveTemp"  @cancelTemp="cancelTemp"></foodTemp>
 	</div>
@@ -205,19 +229,34 @@ export default {
 	    editor1,
 	    foodTemp
 	},
+	directives: {
+	  focus: {
+	    // 指令的定义 当被绑定的元素插入到 DOM 中时……
+	    inserted: function (el) {
+	      el.focus()
+	    }
+	  },
+	},
  	data:function(){
 		return {
 			//canCrop:false,
      		uploadUrl:common.uploadUrl+'/upload',
 			
 			foodTempHide:true,
-			catg:"",
+			catg:"-1",
 			title:"",
 			desc:"",
-			content:"123",
-			foodList:[{name:"1",quality:"2"},{name:"3",quality:"4"}],
+			content:``,
+			foodList:[],
+			showFoodList:[],
 			sliderImgs:[],
 			coverImg:"",
+			focusEditor:false,
+			tags:[],
+			ifaddtag:false,
+			foodActive:"-1",
+			tagActive:"-1",
+
 		}
 	},
 	computed:{
@@ -233,9 +272,9 @@ export default {
 			this.foodTempHide=true
 		},
 		saveTemp:function(data){
-			console.log(data)
 			this.foodTempHide=true
 			this.foodList=data
+			this.showFoodList=this.foodList.map(({name,quality})=>{return {name,quality}})
 		},        
 		uploadHeadImg:function(e) {
 			  var data = new FormData;
@@ -251,23 +290,60 @@ export default {
 	            }
 	          }.bind(this)
 		},
+		editFocus(){
+			this.focusEditor=true
+			this.$refs.editor.focus()
+		},
 		editchange(data){
 			this.content=data
 		},
+		addtag(){
+			this.ifaddtag=true
+			// this.$refs.edittag.focus()//获取不到，因为该inpu用了v-if不是在注册的时候就存在
+			//官方关于 ref 注册时间的重要说明：因为 ref 本身是作为渲染结果被创建的
+		},
+		tagEnter(i){
+			this.tagActive=i
+		},
+		tagLeave(){
+			this.tagActive=-1
+		},
+		foodEnter(i){
+			this.foodActive=i
+		},
+		foodLeave(i){
+			this.foodActive=-1
+		},
+		tagblur(e){
+			if(e.target&&e.target.value){
+				this.tags.push({val:e.target.value,sclose:false})
+			}
+			this.ifaddtag=false
+		},
+		deleteTag(i){
+			this.tags.splice(i,1)
+		},
+		deleteFood(i){
+			this.foodList.splice(i,1)
+			this.showFoodList.splice(i,1)
+		},
+		deleteSliderImg(i){
+			this.sliderImgs.splice(i,1)
+		},
 		save(){
-			axios.post('/manage/article/api/add',{
-	      	    catg: this.catg,
-	      	    title: this.title,
-	      	    desc: this.desc,
-	      	    details:this.content,
-	      	    spec:JSON.stringify(this.foodList),
-	      	    sliderImgs:JSON.stringify(this.sliderImgs),
-	      	    coverImg:this.coverImg
-	      	  }).then(res=>{
-	      	  		if(res.success){
-	      	  			console.log("添加成功！")
-	      	  		}
-	    	  })
+			  // axios.post('/manage/article/api/add',{
+			  //     	    catg: this.catg,
+			  //     	    title: this.title,
+			  //     	    desc: this.desc,
+			  //     	    details:this.content,
+			  //     	    spec:JSON.stringify(this.foodList),
+			  //     	    sliderImgs:JSON.stringify(this.sliderImgs),
+			  //     	    coverImg:this.coverImg
+			  //     	  }).then(res=>{
+			  //     	  		if(res.success){
+			  //     	  			console.log("添加成功！")
+			  //     	  		}
+			  //   	  })
 		},
 		view(){
 
@@ -281,73 +357,179 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-
+@import '../assets/css/common.scss';
 .main{
 	margin-top:20px;
 	position: relative;
 	background-color: white;
-	height: 100%;
 	width:100%;
 	display: flex;
 	flex-direction: row;
+	input[type=button]{
+		background-color: white;
+		border: 1px solid #ddd;
+	    border-radius: 4px;
+	    padding: 4px 20px;
+	    display: inline-block;
+	}
 	.arti-div{
 		width:100%;
 		margin-bottom: 80px;
 		float: left;
 		box-sizing: border-box;
+		position: relative;
 		.vue-html5-editor{
 			border:none;
-			border-bottom: 1px solid rgba(0,0,0,0.2);
+		}
+		.article-detail{
+			width:100%;
+			height: 500px;
+			font-size:20px;
+			color:rgba(0,0,0,0.4);
+			position:absolute;
+			top:0;
+			line-height: 500px;
+			text-align: center;
 		}
 		.customer{
-			input[type=text]{
-				border:none;
-				border-bottom: 1px solid rgba(0,0,0,0.2);
-				outline: none;
-				width:50%;
-				font-size:15px;
-			}
-			margin-top: 20px;
-			.a-upload {
-			    padding: 4px 10px;
-			    height: 20px;
-			    line-height: 20px;
-			    position: relative;
-			    cursor: pointer;
-			    border: 1px solid #ddd;
-			    border-radius: 4px;
-			    overflow: hidden;
-			    display: inline-block;
-			    *display: inline;
-			    *zoom: 1;
-			    font-size:10px;
-			}
-			.a-upload  input {
-			    position: absolute;
-			    font-size: 100px;
-			    right: 0;
-			    top: 0;
-			    opacity: 0;
-			    filter: alpha(opacity=0);
-			    cursor: pointer;
-			}
-			.cover-img{
-				border:1px solid gray;
-				display:block; 
-				width:100px;
-				height: auto;
-			}
-			.hasImg,.noImg{
-				display: block;
-				width:120px;
-				height: 120px;
-				background-color: gray;
-			}
-			.hasImg{
-				background-repeat: no-repeat;
-				background-size: cover;
+				border-top:1px solid rgba(0,0,0,0.2);
+				margin:40px;
+				box-sizing: border-box;
+				padding-top:30px;
+				.item{
+					margin-top:20px;
+					.item-name{
+						font-size:15px;
+					}
+				    .catg{
+				    	display: inline-block;
+				    	width:180px;
+				    	padding:3px;
+				    	border: 1px solid #ddd;
+				    	border-radius: 4px;
+				    	vertical-align: bottom;
+				    	outline: none;
+				    	cursor: pointer;
+				    }
+				    &.food{
+						.food-temp{
+							margin-top:10px;
+							min-width:max-content;/*元素大到所有元素都刚好不换行*/
+					    	width:50%;
+							div{
+							  padding:5px 10px;
+							  span:first-child{
+								 float:left;
+								 margin-right: 50px;
+							  }
+							  span:nth-child(n+2){
+								 float:right;
+								 margin-right: 20px;
+							  }
+							  span:nth-child(2){
+							  	color:rgba(0,0,0,0.4);
+							  }
+					    	}
+					    	.oddFood{
+					    		span:first-child{
+					    			color:$main-color;
+					    		};
+					    	}
+					    	.evenFood{
+								background-color: rgba(0,0,0,0.1)
+					    	}
+						}
+				    	
+				    }
+					&.title{
+						input[type=text]{
+							border:none;
+							border-bottom: 1px solid rgba(0,0,0,0.2);
+							outline: none;
+							width:50%;
+							font-size:15px;
+						}
+					}
+					.a-upload {
+					    padding: 4px 20px;
+					    height: 20px;
+					    line-height: 20px;
+					    position: relative;
+					    cursor: pointer;
+					    border: 1px solid #ddd;
+					    border-radius: 4px;
+					    overflow: hidden;
+					    display: inline-block;
+					    font-size:10px;
+					    vertical-align: middle;
+					}
+					.a-upload  input {
+					    position: absolute;
+					    right: 0;
+					    top: 0;
+					    opacity: 0;
+					    filter: alpha(opacity=0);
+					    cursor: pointer;
+					}
+					.cover-img{
+						margin-top:10px;
+						border:1px solid gray;
+						display:block; 
+						width:100px;
+						height: auto;
+					}
+					.hasImg,.noImg{
+						margin-top:10px;
+						display: block;
+						width:200px;
+						height: 120px;
+						background-color: rgba(0,0,0,0.2);
+					}
+					.hasImg{
+						background-repeat: no-repeat;
+						background-size: cover;
+					}
+					&.tags{
+						.tag{
+							cursor: pointer;
+							margin-right: 10px;
+							background-color: white;
+							border: 1px solid #ddd;
+						    border-radius: 4px;
+						    padding: 4px 20px;
+						    display: inline-block;
+							position: relative;
+							.close{
+								position: absolute;
+								top:0;
+								left:0;
+								background-color: rgba(0,0,0,0.7);
+								width:100%;
+								height: 100%;
+								text-align: center;
+								line-height: 30px;
+								color:white;
+							}
+						 }
+						 .tagInput{
+						 	 border-radius: 4px;
+						 	 padding: 4px 20px;
+						 	 border: 1px solid #ddd;
+						 }
+							
+					}
 			}
 		}
+	}
+	.footer{
+		position: fixed;
+		width:81.5%;
+		height: 60px;
+		bottom: 0;
+		border-top: 1px solid rgba(0,0,0,0.2);
+		text-align: center;
+		line-height: 60px;
+		background-color: white;
 	}
 	
 /*	.arti-oth{
@@ -375,15 +557,6 @@ export default {
 			}
 		}
 	}*/
-	.footer{
-		width:100%;
-		height: 80px;
-		position: absolute;
-		bottom: 0;
-		border-top: 1px solid rgba(0,0,0,0.2);
-		text-align: center;
-		line-height: 80px;
-	}
 }
 
 

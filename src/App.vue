@@ -198,6 +198,9 @@ p{
   height: 50px;
   border-radius: 100%;
 }
+input{
+    outline: none;
+}
 .active{
     color: $main-color;
 }

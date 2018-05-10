@@ -47,7 +47,7 @@ export default {
 <<style lang="scss" scope>
 @import '../assets/css/common.scss';
 #foodTemp{
-  position: absolute;
+  position: fixed;
   top:0;
   bottom: 0;
   left: 0;
@@ -55,6 +55,7 @@ export default {
   background-color: rgba(0,0,0,0.2);
   text-align: center;
   font-size:15px;
+  z-index: 7;
   .foodTemp{
     width:500px;
     height: 300px;
