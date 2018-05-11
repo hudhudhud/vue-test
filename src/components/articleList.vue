@@ -35,9 +35,10 @@ export default {
 	.articles{
 	display: flex;
 	flex-direction: row;
+	flex-wrap: wrap;
 		.article{
 			padding:10px;
-			width:20%;
+			width:200px;
 			height: 200px;
 			background-color: white;
 			&:not(:last-child){

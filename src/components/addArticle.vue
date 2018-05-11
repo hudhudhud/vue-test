@@ -24,11 +24,10 @@
 					<!-- <p><span>简要描述：</span><input type="text" v-model="desc"> -->
 					<div class="item">
 						<span class="item-name">封面：</span>
-						<a href="javascript:;" class="a-upload">
-						    <input type="file" name="coverImg"  @change="uploadHeadImg">选择图片
-						</a>
-						<!-- <img  v-if="coverImg" :src="coverImg" alt="" class="cover-img"> -->
-						<span v-if="coverImg" class="hasImg" :style="{backgroundImage:coverImgStyle}"></span>
+						<uploadImg :callback="showCoverImg" :uploadUrl="uploadUrl"></uploadImg>
+						<div v-if="coverImg">
+							<span  class="hasImg" :style="{backgroundImage:'url('+coverImg+')'}"></span>
+						</div>
 						<span v-else class="noImg" ></span>
 					</div>
 					<div class="item">
@@ -45,7 +44,9 @@
 					<div class="item tags">
 						<span class="item-name">标签：</span>
 						<span v-for="(item,i) in tags" class="tag"  @mouseenter="tagEnter(i)"  @mouseleave="tagLeave">{{item.val}}
-							<span class="close" @click="deleteTag(i)" v-show="tagActive==i">X</span>
+							<transition name="fade">
+								<span class="close" @click="deleteTag(i)" v-show="tagActive==i">X</span>
+							</transition>
 						</span>
 						<input type="text" v-if="ifaddtag" @blur="tagblur" class="tagInput"  v-focus>
 						<span class="tag" @click="addtag" title="添加标签">+</span>
@@ -54,24 +55,33 @@
 						<span class="item-name">食材:</span>
 						<input type="button" class="btn" @click="foodTemp" value="添加食材">
 						<section class="food-temp">
-							<div v-for="(item,i) in showFoodList" :class="{oddFood:i%2==0,evenFood:i%2==1,active:foodActive==i}" class="clearfix"
+							<div v-for="(item,i) in showFoodList" :class="{oddFood:i%2==0,evenFood:i%2==1,choosedFood:foodActive==i}" class="clearfix"
 							@mouseenter="foodEnter(i)" @mouseleave="foodLeave()">
 								<span >{{item.name}}</span>
-								<span class="close" @click="deleteFood(i)">X</span>
+								<span @click="deleteFood(i)"  title="删除">X</span>
 								<span>{{item.quality}}</span>
 							</div>
 						</section>
 					</div>
-					<div class="item">
+					<div class="item slider">
 						<span class="item-name">轮播图:</span>
-						<input type="button" class="btn" value="选择图片" @click="slider">
+						<uploadImg :callback="showImgList" :uploadUrl="uploadUrl"></uploadImg>
+						<div v-if="sliderImgs.length">
+							<span  class="hasImg sliderImg" v-for="(item,i) in sliderImgs" 
+							 :style="{backgroundImage:'url('+item+')'}"
+							 @mouseenter="sliderImgEnter(i)" @mouseleave="sliderImgLeave()">
+							 	<transition name="fade">
+									<span class="close slider" @click="deleteSliderImg(i)" v-show="imgActive==i">X</span>
+								</transition>
+							 </span>
+						</div>
+						<span v-else class="noImg" ></span>
 					</div>
 				
 				</div>
 			</div>
 			<div class="footer">
 				<input type="button" value="保存" @click="save">
-				<input type="button" value="预览" @click="view">
 				<input type="button" value="保存并发送"  @click="savesend">
 			</div>			
 		</section>
@@ -83,7 +93,8 @@
 <script>
 import '../assets/css/font-awesome.min.css';
 //import editor from './Quilleditor.vue'
-import editor from 'vue-html5-editor'                                                          
+import editor from 'vue-html5-editor'
+import uploadImg from './uploadImg.vue'                                                           
 import foodTemp from './foodTemp.vue'
 import common from '../assets/js/common.js'
 import axios from '../assets/js/myaxios'
@@ -136,7 +147,7 @@ var options= {
         // 响应数据处理,最终返回图片链接
         // handle response data，return image url
         uploadHandler(responseText){
-        	var name=JSON.parse(responseText).name
+        	var name=JSON.parse(responseText).files[0].name
         	console.log(name)
         	var src=`${common.imgUrl}/upload/${name}`
         	console.log(src)
@@ -227,7 +238,8 @@ const editor1 = new editor(options)
 export default {
 	components: {
 	    editor1,
-	    foodTemp
+	    foodTemp,
+	    uploadImg
 	},
 	directives: {
 	  focus: {
@@ -239,30 +251,28 @@ export default {
 	},
  	data:function(){
 		return {
-			//canCrop:false,
      		uploadUrl:common.uploadUrl+'/upload',
-			
 			foodTempHide:true,
 			catg:"-1",
 			title:"",
 			desc:"",
 			content:``,
-			foodList:[],
+			foodList:[{name:1,quality:2},{name:3,quality:4}],
 			showFoodList:[],
 			sliderImgs:[],
 			coverImg:"",
 			focusEditor:false,
 			tags:[],
 			ifaddtag:false,
-			foodActive:"-1",
-			tagActive:"-1",
-
+			foodActive:-1,
+			tagActive:-1,
+			imgActive:-1,
 		}
 	},
 	computed:{
-		coverImgStyle(){
-			return `url(${this.coverImg})`
-		}
+		// coverImgStyle(){
+		// 	return `url(${this.coverImg})`
+		// }
 	},
 	methods:{
 		foodTemp() {
@@ -276,19 +286,16 @@ export default {
 			this.foodList=data
 			this.showFoodList=this.foodList.map(({name,quality})=>{return {name,quality}})
 		},        
-		uploadHeadImg:function(e) {
-			  var data = new FormData;
-	          data.append('artifile', e.target.files[0],e.target.files[0].name);
-	          var xhr=new XMLHttpRequest();
-	          xhr.open('post',this.uploadUrl);
-	          xhr.responseType='json';
-	          xhr.send(data);
-	          xhr.onload=function () {
-	            if(xhr.status==200){
-	              console.log(common.imgUrl+"/upload/"+xhr.response.name)
-	              this.coverImg=common.imgUrl+"/upload/"+xhr.response.name
-	            }
-	          }.bind(this)
+		showCoverImg:function(files){
+            console.log(this.createImgUrl(files[0].name))
+            this.coverImg=this.createImgUrl(files[0].name)
+		},
+		showImgList:function(files){
+			files.forEach(item=>this.sliderImgs.push(this.createImgUrl(item.name)))
+			console.log(this.sliderImgs)
+		},
+		createImgUrl(name){
+			return common.imgUrl+"/upload/"+name
 		},
 		editFocus(){
 			this.focusEditor=true
@@ -314,6 +321,12 @@ export default {
 		foodLeave(i){
 			this.foodActive=-1
 		},
+		sliderImgEnter(i){
+			this.imgActive=i
+		},
+		sliderImgLeave(){
+			this.imgActive=-1
+		},
 		tagblur(e){
 			if(e.target&&e.target.value){
 				this.tags.push({val:e.target.value,sclose:false})
@@ -331,33 +344,57 @@ export default {
 			this.sliderImgs.splice(i,1)
 		},
 		save(){
-			  // axios.post('/manage/article/api/add',{
-			  //     	    catg: this.catg,
-			  //     	    title: this.title,
-			  //     	    desc: this.desc,
-			  //     	    details:this.content,
-			  //     	    spec:JSON.stringify(this.foodList),
-			  //     	    sliderImgs:JSON.stringify(this.sliderImgs),
-			  //     	    coverImg:this.coverImg
-			  //     	  }).then(res=>{
-			  //     	  		if(res.success){
-			  //     	  			console.log("添加成功！")
-			  //     	  		}
-			  //   	  })
-		},
-		view(){
-
+			axios.post('/manage/article/api/add',{
+	      	    catg: this.catg,
+	      	    title: this.title,
+	      	    //desc: this.desc,
+	      	    details:this.content,
+	      	    spec:JSON.stringify(this.foodList),
+	      	    sliderImgs:JSON.stringify(this.sliderImgs),
+	      	    coverImg:this.coverImg,
+	      	    tags:JSON.stringify(this.tags),
+	      	}).then(res=>{
+	      		console.log(res)
+	      	  		if(res.data.success){
+	      	  			console.log("添加成功！")
+	      	  			this.$router.push({
+                            path: "/admin/manage"
+                        });
+	      	  		}
+	    	})
 		},
 		savesend(){
+			axios.post('/manage/article/api/add',{
+	      	    catg: this.catg,
+	      	    title: this.title,
+	      	    //desc: this.desc,
+	      	    details:this.content,
+	      	    spec:JSON.stringify(this.foodList),
+	      	    sliderImgs:JSON.stringify(this.sliderImgs),
+	      	    coverImg:this.coverImg,
+	      	    tags:JSON.stringify(this.tags),
+	      	    publishDate:new Date()
+	      	}).then(res=>{
+	      		console.log(res)
+	      	  		if(res.data.success){
+	      	  			console.log("添加成功！")
+	      	  			this.$router.push({
+                            path: "/manage"
+                        });
+	      	  		}
+	    	})
 		},
-		slider(){
-
-		}
 	}
 }
 </script>
 <style lang="scss" scoped>
 @import '../assets/css/common.scss';
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .3s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 .main{
 	margin-top:20px;
 	position: relative;
@@ -413,6 +450,7 @@ export default {
 				    }
 				    &.food{
 						.food-temp{
+							border:1px solid rgba(0,0,0,0.1);
 							margin-top:10px;
 							min-width:max-content;/*元素大到所有元素都刚好不换行*/
 					    	width:50%;
@@ -428,7 +466,11 @@ export default {
 							  }
 							  span:nth-child(2){
 							  	color:rgba(0,0,0,0.4);
+							  	cursor: pointer;
 							  }
+					    	}
+					    	.choosedFood{
+					    		xbackground-color: rgba(0.2,0,0,0.5);
 					    	}
 					    	.oddFood{
 					    		span:first-child{
@@ -450,26 +492,22 @@ export default {
 							font-size:15px;
 						}
 					}
-					.a-upload {
-					    padding: 4px 20px;
-					    height: 20px;
-					    line-height: 20px;
-					    position: relative;
-					    cursor: pointer;
-					    border: 1px solid #ddd;
-					    border-radius: 4px;
-					    overflow: hidden;
-					    display: inline-block;
-					    font-size:10px;
-					    vertical-align: middle;
-					}
-					.a-upload  input {
-					    position: absolute;
-					    right: 0;
-					    top: 0;
-					    opacity: 0;
-					    filter: alpha(opacity=0);
-					    cursor: pointer;
+					&.tags{
+						.tag{
+							cursor: pointer;
+							margin-right: 10px;
+							background-color: white;
+							border: 1px solid #ddd;
+						    border-radius: 4px;
+						    padding: 4px 20px;
+						    display: inline-block;
+							position: relative;
+						}
+						.tagInput{
+						 	 border-radius: 4px;
+						 	 padding: 4px 20px;
+						 	 border: 1px solid #ddd;
+						}
 					}
 					.cover-img{
 						margin-top:10px;
@@ -488,36 +526,33 @@ export default {
 					.hasImg{
 						background-repeat: no-repeat;
 						background-size: cover;
-					}
-					&.tags{
-						.tag{
-							cursor: pointer;
+						&.sliderImg{
+							display: inline-block;
 							margin-right: 10px;
-							background-color: white;
-							border: 1px solid #ddd;
-						    border-radius: 4px;
-						    padding: 4px 20px;
-						    display: inline-block;
-							position: relative;
-							.close{
-								position: absolute;
-								top:0;
-								left:0;
-								background-color: rgba(0,0,0,0.7);
-								width:100%;
-								height: 100%;
-								text-align: center;
-								line-height: 30px;
-								color:white;
-							}
-						 }
-						 .tagInput{
-						 	 border-radius: 4px;
-						 	 padding: 4px 20px;
-						 	 border: 1px solid #ddd;
-						 }
-							
+						}
 					}
+					&.slider{
+						.hasImg{
+							position: relative;
+						}
+					}
+					.close{
+							position: absolute;
+							top:0;
+							left:0;
+							background-color: rgba(0,0,0,0.7);
+							width:100%;
+							height: 100%;
+							text-align: center;
+							line-height: 30px;
+							color:white;
+							cursor: pointer;
+							&.slider{
+								font-size: 50px;
+								line-height: 120px;
+							}
+						}
+
 			}
 		}
 	}
