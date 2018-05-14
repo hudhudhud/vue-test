@@ -8,8 +8,14 @@
             </div>
             <div class="router" >
               <ul v-for="item in menu">
-                  <li><router-link :to='item.path' :class="{active:item.name==activeName}" @click.native="menuClick">{{item.name}}</router-link></li>
-                  <li v-for="child in item.child"><router-link :to='child.path' :class="{active:child.name==activeName}"@click.native="menuClick">{{child.name}}</router-link></li>
+                  <li>
+                    <router-link v-if="item.path" :to='item.path' :class="{active:item.name==activeName}" @click.native="menuClick">{{item.name}}</router-link>
+                    <p  v-else>{{item.name}}</p>
+                  </li>
+                  <li v-for="child in item.child">
+                    <router-link v-if="child.path" :to='child.path' :class="{active:child.name==activeName}"@click.native="menuClick">{{child.name}}</router-link>
+                   <p  v-else>{{child.name}}</p>
+                 </li>
               </ul>
             </div>
           </div>
@@ -37,8 +43,8 @@ export default {
      activeName:"首页",
      menu: [
         {name:"首页",path:"/"},
-        {name:"管理",path:"/manage",child:[{name:"文章管理",path:"/manage/article"},{name:"用户管理",path:"/manage/user"}]},
-        {name:"统计",path:"/statistics" ,child:[{name:"用户分析",path:"/statistics/user"}]}
+        {name:"管理",child:[{name:"文章管理",path:"/manage/article"},{name:"用户管理",path:"/manage/user"}]},
+        {name:"统计",child:[{name:"用户分析",path:"/statistics/user"}]}
       ]
     }
   },

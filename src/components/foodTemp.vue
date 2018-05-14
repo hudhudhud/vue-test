@@ -7,14 +7,14 @@
         </p>
         <p class="food-title">食材</p>
         <ul class="lines"  >
-          <li v-for="(item,i) in foodLines">
+          <li v-for="(item,i) in foodLines" class="clearfix">
             <input type="text" placeholder="请输入食材"  v-model.trim="item.name" >
             <input type="text" placeholder="请输入用量"  v-model.trim="item.quality">
-            <input type="button"  value="X" class="del" @click="del(i)">
+            <input type="button"  value="X" class="del" @click="del(i)" >
           </li>
         </ul>
-        <input type="button" value="保存" @click="save">
-        <input type="button" value="取消" @click="cancel">
+        <input type="button" value="保存" @click="save" class="btns">
+        <input type="button" value="取消" @click="cancel" class="btns">
       </div>
     </div>
 </template>
@@ -36,6 +36,7 @@ export default {
       this.$emit("cancelTemp")
     },
     save:function() {
+       this.foodLines = this.foodLines.filter(item=>item.name)
        this.$emit("saveTemp",this.foodLines)
     },
     del:function(i){
@@ -83,6 +84,8 @@ export default {
     }
     .food-title{
       float:left;
+      padding-left: 45px;
+      margin-top:5px;
     }
     .lines{
       margin:auto;
@@ -92,28 +95,51 @@ export default {
       width:450px;
       height: 180px;
       padding:20px;
+      padding-top:0;
       overflow-y: scroll;
-      input[type="text"]{
-        margin-top: 5px;
-        width:120px;
-        height: 25px;
-        outline: none;
+      li{
+        width:350px;
         background-color: rgba(0,0,0,0.1);
-        border:none;
-        margin-right: 30px;
+        margin-top:5px;
+        input[type="text"]{
+          padding:0;
+          width:120px;
+          height: 25px;
+          line-height: 25px;
+          outline: none;
+          background-color: transparent;
+          border:none;
+          margin-right: 30px;
+          &:first-child{
+            float:left;
+          };
+          &:nth-child(2){
+            float:right;
+          };
+        }
       }
+    
     }
-    >input[type=button]{
-      margin-top:20px;
-      width:100px;
-      height: 30px;
-      border:1px solid rgba(0,0,0,0.1);
-      color: black;
-      outline: none;
-      &:hover{
-        background-color:$main-color;
-        color:white;
-      };
+    input[type=button]{
+      &.btns{
+        margin-top:20px;
+        width:100px;
+        height: 30px;
+        color: black;
+        border:1px solid rgba(0,0,0,0.1);
+        margin-right:10px;
+        background-color: white;
+        &:hover{
+          background-color:$main-color;
+          color:white;
+        };
+      }
+      &.del{
+           border: none;
+           background: none;
+           margin-right: -380px;
+           line-height: 25px;
+      }
     }
   }
   &.foodTempHide{

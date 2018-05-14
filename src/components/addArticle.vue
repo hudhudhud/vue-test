@@ -15,7 +15,7 @@
 		            v-model="content">
            		 </editor> -->
         		<editor1 :content="content"  :height="500"  ref="editor" @change="editchange" :z-index="5" :auto-height=false></editor1>
-        		<p class="article-detail" v-if="!focusEditor" @click="editFocus">请在这里编辑文章</p>
+        		<p class="article-detail" v-if="!focusEditor&&!content" @click="editFocus">请在这里编辑文章</p>
 				<div class="customer">
 					<div class="item title">
 						<span class="item-name">标题：</span>
@@ -24,7 +24,7 @@
 					<!-- <p><span>简要描述：</span><input type="text" v-model="desc"> -->
 					<div class="item">
 						<span class="item-name">封面：</span>
-						<uploadImg :callback="showCoverImg" :uploadUrl="uploadUrl"></uploadImg>
+						<uploadImg :callback="showCoverImg" :uploadUrl="uploadUrl"  :maxSize="{width:600}"></uploadImg>
 						<div v-if="coverImg">
 							<span  class="hasImg" :style="{backgroundImage:'url('+coverImg+')'}"></span>
 						</div>
@@ -34,11 +34,7 @@
 						<span class="item-name">分类：</span>
 						<select v-model="catg" name="catg" class="catg">
 							<option value="-1">请选择</option>
-							<option value="1">美食</option>
-							<option value="2">美妆</option>
-							<option value="3">服饰</option>
-							<option value="4">健身</option>
-							<option value="5">家居</option>
+							<option v-for="item in catgList" :value="item.val">{{item.name}}</option>
 						</select>
 					</div>
 					<div class="item tags">
@@ -65,7 +61,7 @@
 					</div>
 					<div class="item slider">
 						<span class="item-name">轮播图:</span>
-						<uploadImg :callback="showImgList" :uploadUrl="uploadUrl"></uploadImg>
+						<uploadImg :callback="showImgList" :uploadUrl="uploadUrl" :maxSize="{width:600}"></uploadImg>
 						<div v-if="sliderImgs.length">
 							<span  class="hasImg sliderImg" v-for="(item,i) in sliderImgs" 
 							 :style="{backgroundImage:'url('+item+')'}"
@@ -82,7 +78,7 @@
 			</div>
 			<div class="footer">
 				<input type="button" value="保存" @click="save">
-				<input type="button" value="保存并发送"  @click="savesend">
+				<input type="button" value="保存并发送"  @click="save(1)">
 			</div>			
 		</section>
 		<foodTemp :is-hide="foodTempHide" :food-lines="foodList" @saveTemp="saveTemp"  @cancelTemp="cancelTemp"></foodTemp>
@@ -140,8 +136,8 @@ var options= {
         // compression config,default resize image by localResizeIMG (https://github.com/think2011/localResizeIMG)
         // set null to disable compression
         compress:true, 
-        width: 600,
-        height: 600,
+        width: 500,
+        height: 500,
         quality: 80,
        
         // 响应数据处理,最终返回图片链接
@@ -251,9 +247,11 @@ export default {
 	},
  	data:function(){
 		return {
+			id:"",
      		uploadUrl:common.uploadUrl+'/upload',
 			foodTempHide:true,
 			catg:"-1",
+			catgList:common.catgList,
 			title:"",
 			desc:"",
 			content:``,
@@ -273,6 +271,24 @@ export default {
 		// coverImgStyle(){
 		// 	return `url(${this.coverImg})`
 		// }
+	},
+	mounted(){
+		var id=this.$route.params.id
+		if(id){
+			 this.id=id
+			 axios.get('/manage/article/api/'+id).then(res=>{
+		 		console.log(res)
+		 		res=res.data
+		 		this.title=res.title
+		 		this.catg=res.catg
+		 		this.content=res.details
+		 		this.foodList=res.spec
+		 		this.showFoodList=this.foodList.map(({name,quality})=>{return {name,quality}})
+		 		this.sliderImgs=res.sliderImgs
+		 		this.coverImg=res.coverImg
+		 		this.tags=res.tags
+            })
+		}
 	},
 	methods:{
 		foodTemp() {
@@ -330,6 +346,7 @@ export default {
 		tagblur(e){
 			if(e.target&&e.target.value){
 				this.tags.push({val:e.target.value,sclose:false})
+				this.tagLeave()
 			}
 			this.ifaddtag=false
 		},
@@ -343,46 +360,46 @@ export default {
 		deleteSliderImg(i){
 			this.sliderImgs.splice(i,1)
 		},
-		save(){
-			axios.post('/manage/article/api/add',{
-	      	    catg: this.catg,
-	      	    title: this.title,
-	      	    //desc: this.desc,
-	      	    details:this.content,
-	      	    spec:JSON.stringify(this.foodList),
-	      	    sliderImgs:JSON.stringify(this.sliderImgs),
-	      	    coverImg:this.coverImg,
-	      	    tags:JSON.stringify(this.tags),
-	      	}).then(res=>{
-	      		console.log(res)
-	      	  		if(res.data.success){
-	      	  			console.log("添加成功！")
-	      	  			this.$router.push({
-                            path: "/admin/manage"
-                        });
-	      	  		}
-	    	})
-		},
-		savesend(){
-			axios.post('/manage/article/api/add',{
-	      	    catg: this.catg,
-	      	    title: this.title,
-	      	    //desc: this.desc,
-	      	    details:this.content,
-	      	    spec:JSON.stringify(this.foodList),
-	      	    sliderImgs:JSON.stringify(this.sliderImgs),
-	      	    coverImg:this.coverImg,
-	      	    tags:JSON.stringify(this.tags),
-	      	    publishDate:new Date()
-	      	}).then(res=>{
-	      		console.log(res)
-	      	  		if(res.data.success){
-	      	  			console.log("添加成功！")
-	      	  			this.$router.push({
-                            path: "/manage"
-                        });
-	      	  		}
-	    	})
+		save(send){
+			var obj={
+				 	catg: this.catg,
+		      	    title: this.title,
+		      	    //desc: this.desc,
+		      	    details:this.content,
+		      	    spec:JSON.stringify(this.foodList),
+		      	    sliderImgs:JSON.stringify(this.sliderImgs),
+		      	    coverImg:this.coverImg,
+		      	    tags:JSON.stringify(this.tags),
+			}
+			if(this.id){
+				obj.modifyDate=new Date()
+			}
+			if(send){
+				obj.publishDate=new Date()
+			}
+			if(this.id){
+					axios.post('/manage/article/api/'+this.id,obj).then(res=>{
+			      			console.log(res)
+			      	  		if(res.data.success){
+			      	  			console.log("添加成功！")
+			      	  			this.$router.push({
+		                            path: "/manage/article"
+		                        });
+			      	  		}
+			    	})
+			}
+			else{
+					axios.post('/manage/article/api/add',obj).then(res=>{
+			      			console.log(res)
+			      	  		if(res.data.success){
+			      	  			console.log("添加成功！")
+			      	  			this.$router.push({
+		                            path: "/manage/article"
+		                        });
+			      	  		}
+			    	})
+			}
+		
 		},
 	}
 }

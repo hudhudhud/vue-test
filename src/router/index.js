@@ -37,8 +37,10 @@ var router=new Router({
 		      //   { path: 'add', component: AddArticle,name:"1" },
 		      // ]
 	    	},
-	        { path: 'article/add', component: AddArticle,name:"2" },
-	        { path: 'user', component: UserList,name:"3"}
+	    	{ path: 'article/add', component: AddArticle,name:"3" },
+	    	{ path: 'article/catg/:catg', component: ArticleList,name:"2" },
+	        { path: 'article/edit/:id', component: AddArticle,name:"4" },
+	        { path: 'user', component: UserList,name:"5"}
 	      ]
 	    },
 	    { path: '/statistics', component: Content,
