@@ -255,7 +255,7 @@ export default {
 			title:"",
 			desc:"",
 			content:``,
-			foodList:[{name:1,quality:2},{name:3,quality:4}],
+			foodList:[{name:"青菜",quality:"500g"},{name:"萝卜",quality:"300g"}],
 			showFoodList:[],
 			sliderImgs:[],
 			coverImg:"",

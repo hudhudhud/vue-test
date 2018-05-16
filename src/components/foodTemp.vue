@@ -36,7 +36,6 @@ export default {
       this.$emit("cancelTemp")
     },
     save:function() {
-       this.foodLines = this.foodLines.filter(item=>item.name)
        this.$emit("saveTemp",this.foodLines)
     },
     del:function(i){

@@ -9,12 +9,15 @@
             <div class="router" >
               <ul v-for="item in menu">
                   <li>
-                    <router-link v-if="item.path" :to='item.path' :class="{active:item.name==activeName}" @click.native="menuClick">{{item.name}}</router-link>
-                    <p  v-else>{{item.name}}</p>
+                    <router-link v-if="item.path" :to='item.path' :class="{active:item.name==activeName}" @click.native="menuClick"> <i :class="item.icon" v-if="item.icon"></i>{{item.name}}</router-link>
+                    <p  v-else> <i :class="item.icon" v-if="item.icon"></i> {{item.name}}</p>
                   </li>
                   <li v-for="child in item.child">
-                    <router-link v-if="child.path" :to='child.path' :class="{active:child.name==activeName}"@click.native="menuClick">{{child.name}}</router-link>
-                   <p  v-else>{{child.name}}</p>
+                    <router-link v-if="child.path" :to='child.path' :class="{active:child.name==activeName}"@click.native="menuClick">
+                        <i class="fa fa-home none" v-if="item.icon"></i>
+                        {{child.name}}
+                    </router-link>
+                   <p  v-else><i class="fa fa-home none" v-if="item.icon"></i>{{child.name}}</p>
                  </li>
               </ul>
             </div>
@@ -42,11 +45,24 @@ export default {
      user:{name:""},
      activeName:"首页",
      menu: [
-        {name:"首页",path:"/"},
-        {name:"管理",child:[{name:"文章管理",path:"/manage/article"},{name:"用户管理",path:"/manage/user"}]},
-        {name:"统计",child:[{name:"用户分析",path:"/statistics/user"}]}
+        {name:"首页",path:"/",icon:'fa fa-home'},
+        {name:"管理" ,icon:'fa fa-home',child:[{name:"文章管理",path:"/manage/article"},{name:"用户管理",path:"/manage/user"}]},
+        {name:"统计" ,icon:'fa fa-home',child:[{name:"用户分析",path:"/statistics/user"}]}
       ]
     }
+  },
+  mounted(){
+    axios.get("/login/api").then(res=>{
+        console.log("res=",res)
+            if(res.data.user){
+                this.user=res.data.user
+                this.isLogin=true
+                console.log('logined')
+            }
+            else{
+                console.log('no login')
+            }
+        })
   },
   methods:{
     login(payload){
@@ -60,7 +76,7 @@ export default {
             })
     },
     menuClick(e){
-        this.activeName=e.target.innerText
+        this.activeName=e.target.innerText.trim()
     }
   }
 
@@ -70,6 +86,7 @@ export default {
   /*只在本模板中起作用*/
 </style>
 <style lang="scss">
+@import './assets/css/font-awesome.min.css';
 @import './assets/css/common.scss';
 /*跟router transition中的name需要对应，如fade,slide-left,slide-right,否则默认为v*/
 .fade-enter-active, .fade-leave-active {
@@ -180,15 +197,21 @@ p{
 }
 
 .router{
-  margin:auto;
-  margin-top: 100px;
-  width:100px;
-
-}
-.router ul:not(:last-child){
-  padding-bottom: 20px;
-  margin-bottom: 20px;
-  border-bottom: 1px solid rgba(0,0,0,0.3)
+    margin:auto;
+    margin-top: 100px;
+    width:100px;
+    ul:not(:last-child){
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(0,0,0,0.3)
+    }
+    i{
+        color:rgba(0,0,0,0.6);
+        font-size: 18px;
+        &.none{
+            color: transparent;
+        }
+    }
 }
 
 .head-img{

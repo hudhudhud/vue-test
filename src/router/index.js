@@ -40,7 +40,8 @@ var router=new Router({
 	    	{ path: 'article/add', component: AddArticle,name:"3" },
 	    	{ path: 'article/catg/:catg', component: ArticleList,name:"2" },
 	        { path: 'article/edit/:id', component: AddArticle,name:"4" },
-	        { path: 'user', component: UserList,name:"5"}
+	        { path: 'user', component: UserList,name:"5"},
+	        { path: 'user/orign/:orign', component: UserList,name:"6"}
 	      ]
 	    },
 	    { path: '/statistics', component: Content,
