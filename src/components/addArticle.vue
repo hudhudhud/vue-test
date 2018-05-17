@@ -50,7 +50,7 @@
 					<div class="item food" v-show="catg==1">
 						<span class="item-name">食材:</span>
 						<input type="button" class="btn" @click="foodTemp" value="添加食材">
-						<section class="food-temp">
+						<section class="food-temp"  v-if="showFoodList.length">
 							<div v-for="(item,i) in showFoodList" :class="{oddFood:i%2==0,evenFood:i%2==1,choosedFood:foodActive==i}" class="clearfix"
 							@mouseenter="foodEnter(i)" @mouseleave="foodLeave()">
 								<span >{{item.name}}</span>

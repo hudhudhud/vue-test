@@ -189,11 +189,16 @@ export default {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
+		justify-content:space-between;
+		xalign-items:flex-start;
+		:after {
+		    content: "";
+		    flex: auto;
+		 }
 		.article{
+			xflex-grow:1;
 			box-sizing: border-box;
-			padding:0 10px;
-			width:200px;
-			height: 200px;
+			padding:10px 20px;
 			margin:10px;
 			background-color: white;
 			xtransform: scale(0);
@@ -206,6 +211,18 @@ export default {
 				padding:5px 0;
 			}
 		}
+	}
+}
+@media screen and (min-width: 1024px){
+	.article{
+		width:300px;
+		height: 300px;
+	}
+}
+@media screen and (min-width:800px) and (max-width: 1024px){
+	.article{
+		width:200px;;
+		height: 200px;
 	}
 }
 .list-complete-item {

@@ -8,14 +8,17 @@
             </div>
             <div class="router" >
               <ul v-for="item in menu">
-                  <li>
-                    <router-link v-if="item.path" :to='item.path' :class="{active:item.name==activeName}" @click.native="menuClick"> <i :class="item.icon" v-if="item.icon"></i>{{item.name}}</router-link>
+                  <li class="main-menu">
+                    <router-link v-if="item.path" :to='item.path' :class="{active:item.name==activeName}" @click.native="menuClick"> <i :class="item.icon" v-if="item.icon"></i>{{item.name}}
+                        <i class="fa fa-caret-left right" v-if="item.name==activeName"></i>
+                    </router-link>
                     <p  v-else> <i :class="item.icon" v-if="item.icon"></i> {{item.name}}</p>
                   </li>
                   <li v-for="child in item.child">
                     <router-link v-if="child.path" :to='child.path' :class="{active:child.name==activeName}"@click.native="menuClick">
                         <i class="fa fa-home none" v-if="item.icon"></i>
                         {{child.name}}
+                         <i class="fa fa-caret-left right" v-if="child.name==activeName"></i>
                     </router-link>
                    <p  v-else><i class="fa fa-home none" v-if="item.icon"></i>{{child.name}}</p>
                  </li>
@@ -46,8 +49,8 @@ export default {
      activeName:"首页",
      menu: [
         {name:"首页",path:"/",icon:'fa fa-home'},
-        {name:"管理" ,icon:'fa fa-home',child:[{name:"文章管理",path:"/manage/article"},{name:"用户管理",path:"/manage/user"}]},
-        {name:"统计" ,icon:'fa fa-home',child:[{name:"用户分析",path:"/statistics/user"}]}
+        {name:"管理" ,icon:'fa fa-align-justify mana',child:[{name:"文章管理",path:"/manage/article"},{name:"用户管理",path:"/manage/user"}]},
+        {name:"统计" ,icon:'fa fa-adjust',child:[{name:"用户分析",path:"/statistics/user"}]}
       ]
     }
   },
@@ -205,13 +208,31 @@ p{
       margin-bottom: 20px;
       border-bottom: 1px solid rgba(0,0,0,0.3)
     }
-    i{
-        color:rgba(0,0,0,0.6);
-        font-size: 18px;
-        &.none{
-            color: transparent;
+    li{
+        &.main-menu{
+            font-size:18px;
         }
+        i{
+            &.mana{
+                 font-size:15px;
+            }
+            margin-right: 10px;
+            color:rgba(0,0,0,0.6);
+            font-size: 18px;
+            &.none{
+                color: transparent;
+            }
+            &.right{
+                 color: $main-color;
+                 position: absolute;
+                 right: 0;
+                 font-size:20px;
+                 transform: translateX(130%);
+            }
+        }
+        margin-bottom:10px;
     }
+ 
 }
 
 .head-img{
