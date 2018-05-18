@@ -30,6 +30,7 @@
 import axios from '../assets/js/myaxios'
 import common from '../assets/js/common'
 import tabs from './tool/tabs.vue'
+import dayjs from 'dayjs'
 export default {
 	components:{
 		tabs,
@@ -43,6 +44,7 @@ export default {
 			tabDis:50,
 			catg:-1,
 			searchQry:"",
+			dateFormat:"M-DD HH:mm"
 		}
 	},
 	methods:{
@@ -67,42 +69,12 @@ export default {
 			axios.get(`/manage/article/api?${queryStr}`).then(res=>{
 	            this.list=res.data
 	            this.list.forEach(item=>{
-	            	item.date=item.modifyDate?common.formatDate(new Date(item.modifyDate)):common.formatDate(new Date(item.createDate))
+	            	item.date=item.modifyDate?dayjs(item.modifyDate).format(this.dateFormat):dayjs(item.createDate).format(this.dateFormat)
+	            	//common.formatDate(new Date(item.modifyDate)):common.formatDate(new Date(item.createDate))
+	            	// 'YYYY-MM-DD HH:mm:ss'
 	            })
 	        })
 		},
-	},
-	watch: {
-	  //   $route (to, from) {
-   //      	console.log(to)
-   //      	var catg=to.params.catg
-   //      	if(!catg)
-   //      		this.tabLeft=0
-   //      	else{
-   //      		this.tabLeft=(catg)*this.tabWidth
-   //      	}
-			// if(catg){
-			// 	this.catg=catg
-			// }
-			// else{
-			// 	this.catg=-1
-			// }
-
-			// //搜索
-			// var queryStr=""
-			// if(this.searchQry){
-			// 	queryStr+=`search=${this.searchQry}`
-			// }
-			// if(this.catg&&this.catg!=-1){
-			// 	queryStr+=`&catg=${this.catg}`
-			// }
-			// axios.get(`/manage/article/api?${queryStr}`).then(res=>{
-	  //           this.list=res.data
-	  //           this.list.forEach(item=>{
-	  //           	item.date=item.modifyDate?common.formatDate(new Date(item.modifyDate)):common.formatDate(new Date(item.createDate))
-	  //           })
-   //     		})
-	  //   }
 	},
 	mounted(){
 		var catg=this.$route.params.catg
@@ -119,7 +91,7 @@ export default {
 		axios.get(url).then(res=>{
             this.list=res.data
             this.list.forEach(item=>{
-            	item.date=item.modifyDate?common.formatDate(new Date(item.modifyDate)):common.formatDate(new Date(item.createDate))
+            	item.date=item.modifyDate?dayjs(item.modifyDate).format(this.dateFormat):dayjs(item.createDate).format(this.dateFormat)
             })
         })
 	},
@@ -132,27 +104,6 @@ export default {
 @import '../assets/css/font-awesome.min.css';
 .content{
 	background-color: none;
-/*	.tabs{
-		position: relative;
-		font-size: 0;
-		border-bottom:2px solid rgba(0,0,0,0.1);
-		li{
-			font-size: 15px;
-			text-align: center;
-			height: 50px;
-			line-height: 50px;
-			display: inline-block;
-			&.active-tab{
-				height: 1px;
-				position: absolute;
-				top:100%;
-				left:0;
-				transform: translateX(0);
-				border-bottom: 2px solid $main-color;
-				transition: transform .3s linear;
-			}
-		}
-	}*/
 	.search{
 		font-size:15px;
 		padding: 10px 0;
@@ -190,7 +141,6 @@ export default {
 		flex-direction: row;
 		flex-wrap: wrap;
 		justify-content:space-between;
-		xalign-items:flex-start;
 		:after {
 		    content: "";
 		    flex: auto;
@@ -204,25 +154,44 @@ export default {
 			xtransform: scale(0);
 			xopacity:0;
 			xtransition: transform .2s linear;
-			&:not(:last-child){
-				margin-right: 10px;
-			}
+			/*width:300px;
+			height: 300px;*/
+			/*&:last-child{
+				margin-left: 20px;
+			}*/
 			p{
 				padding:5px 0;
 			}
 		}
+		&:after{
+			content:"";
+			display: inline-block;
+			flex-grow:1;
+			xbackground-color: pink;
+		};
 	}
 }
-@media screen and (min-width: 1024px){
+@media screen and (min-width: 1500px){
 	.article{
-		width:300px;
+		width:23%;
 		height: 300px;
 	}
 }
-@media screen and (min-width:800px) and (max-width: 1024px){
+@media screen and (min-width:1200px) and (max-width: 1500px){
 	.article{
-		width:200px;;
-		height: 200px;
+		width:30%;
+		height: 350px;
+	}
+}
+@media screen and (max-width: 1200px){
+	.content{
+		.articles{
+			display: inline-block;
+			.article{
+				width:400px;
+				height: 400px;
+			}
+		}
 	}
 }
 .list-complete-item {

@@ -137,6 +137,7 @@ export default {
       flex-direction: row;
       >.left{
           width:$left-width;
+          min-width: 200px;
           height: 100%;
           box-sizing: border-box;
           background-color: white;
@@ -147,6 +148,7 @@ export default {
            flex-grow: 1;
            min-height: 100%;
            margin-left:$left-width;
+           min-width: 1000px;
            .header{
                height: $top-width;
                background-color: $main-color;
